@@ -57,6 +57,25 @@ class MCPTools:
 					return addr
 			return None
 
+	def get_function_containing(self, addr: int) -> Optional[bn.Function]:
+		"""Get the function at or containing the given address
+
+		Args:
+		    addr: Address to look up
+
+		Returns:
+		    Function object if found, None otherwise
+		"""
+		# First try exact match at function start
+		func = self.bv.get_function_at(addr)
+		if func:
+			return func
+		# Fallback: find function containing this address (e.g., for $PC values)
+		funcs = self.bv.get_functions_containing(addr)
+		if funcs:
+			return funcs[0]
+		return None
+
 	@handle_exceptions
 	def rename_symbol(self, address_or_name: str, new_name: str) -> str:
 		"""Rename a function or a data variable
@@ -110,9 +129,9 @@ class MCPTools:
 		if addr is None:
 			raise ValueError(f"No function found with name/address '{address_or_name}'")
 
-		func = self.bv.get_function_at(addr)
+		func = self.get_function_containing(addr)
 		if not func:
-			raise ValueError(f'No function found at address {hex(addr)}')
+			raise ValueError(f'No function found at or containing address {hex(addr)}')
 
 		lines = []
 		settings = bn.DisassemblySettings()
@@ -147,9 +166,9 @@ class MCPTools:
 		if addr is None:
 			raise ValueError(f"No function found with name/address '{address_or_name}'")
 
-		func = self.bv.get_function_at(addr)
+		func = self.get_function_containing(addr)
 		if not func:
-			raise ValueError(f'No function found at address {hex(addr)}')
+			raise ValueError(f'No function found at or containing address {hex(addr)}')
 
 		lines = []
 		settings = bn.DisassemblySettings()
@@ -184,9 +203,9 @@ class MCPTools:
 		if addr is None:
 			raise ValueError(f"No function found with name/address '{address_or_name}'")
 
-		func = self.bv.get_function_at(addr)
+		func = self.get_function_containing(addr)
 		if not func:
-			raise ValueError(f'No function found at address {hex(addr)}')
+			raise ValueError(f'No function found at or containing address {hex(addr)}')
 
 		# Get HLIL
 		hlil = func.hlil
@@ -214,9 +233,9 @@ class MCPTools:
 		if addr is None:
 			raise ValueError(f"No function found with name/address '{address_or_name}'")
 
-		func = self.bv.get_function_at(addr)
+		func = self.get_function_containing(addr)
 		if not func:
-			raise ValueError(f'No function found at address {hex(addr)}')
+			raise ValueError(f'No function found at or containing address {hex(addr)}')
 
 		# Get MLIL
 		mlil = func.mlil
@@ -277,9 +296,9 @@ class MCPTools:
 			return '\n'.join(disasm)
 
 		# Otherwise, try to get function disassembly
-		func = self.bv.get_function_at(addr)
+		func = self.get_function_containing(addr)
 		if not func:
-			raise ValueError(f'No function found at address {hex(addr)}')
+			raise ValueError(f'No function found at or containing address {hex(addr)}')
 
 		# Get function disassembly using linear disassembly
 		result_lines = []
