@@ -102,7 +102,6 @@ def create_mcp_server(initial_bvs: Optional[List[bn.BinaryView]] = None, **mcp_s
 	"""
 	mcp = FastMCP(
 		name='BinaryNinja',
-		version='1.0.0',
 		description='MCP server for Binary Ninja analysis',
 		lifespan=lifespan,
 		**mcp_settings,
